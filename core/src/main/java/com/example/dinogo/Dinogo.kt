@@ -2,210 +2,175 @@ package com.example.dinogo
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import kotlin.random.Random
-import kotlin.*
-import com.badlogic.gdx.math.Rectangle
-
-import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.graphics.Color
-
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Circle
+import com.badlogic.gdx.math.Intersector
+import com.badlogic.gdx.math.MathUtils.random
+import com.badlogic.gdx.math.Rectangle
+import java.util.*
 
 /** [com.badlogic.gdx.ApplicationListener] implementation shared by all platforms. */
 class Dinogo : ApplicationAdapter() {
+
     lateinit var batch: SpriteBatch
-    lateinit var backGround: Texture
-    lateinit var dizzy: Texture
-    var width = 0f
-    var height = 0f
-    var manWidth = 0f
-    lateinit var man: Array<Texture>
-    var w = 0f
-    var h = 0f
-    var manState = 0
-    var pause = 0
-    var gravity = 0.2f
-    var velocity = 0f
-    var manY = 0f
-    var coinXs = HashMap<Int, Float>()
-    var coinYs = HashMap<Int, Float>()
-    var coinRectangles = HashMap<Int, Rectangle>()
+    lateinit var background: Texture
+    lateinit var birds: Array<Texture>
+    lateinit  var gameover: Texture
+
+
+    var screenWidth = 0
+    var screenHeight = 0
+    var birdCenterX = 0
+    var birdY = 0
+    var whichBird = 0
+    var gameState = 0
+    var velocity = 0
+    var gravity = 0
 
     var bombXs = HashMap<Int, Float>()
     var bombYs = HashMap<Int, Float>()
-    var bombRectangles = HashMap<Int, Rectangle>()
     lateinit var bomb: Texture
     var bombCount = 0
     var numOfBombs = 0
-    lateinit var coin: Texture
-    var coinCount = 0
-    lateinit var random: Random
-    var numOfCoins = 0
-    lateinit var manRectangle: Rectangle
-    lateinit var font: BitmapFont
+
+
+    lateinit  var randomGenerator: Random
+    var bombRectangles = HashMap<Int, Rectangle>()
+    lateinit var shapeRenderer: ShapeRenderer
+    lateinit  var birdCircle: Circle
     var score = 0
-    var gameState = 0
+    var tubePassed = 0
+    var font: BitmapFont? = null
+
     override fun create() {
-        super.create()
         batch = SpriteBatch()
-        backGround = Texture("bg.png")
-        width = Gdx.graphics.width.toFloat()
-        height = Gdx.graphics.height.toFloat()
-        w = 0.5f * width
-        h = 0.5f * height
-
-        man = arrayOf(
-                Texture("frame1.png"), Texture("frame2.png"),
-                Texture("frame3.png"), Texture("frame4.png")
-        )
-        manWidth = man[0].width.toFloat()
-        manY = height
-        coin = Texture("coin.png")
+        background = Texture("bg.png")
+        gameover = Texture("gameover.jpg")
         bomb = Texture("bomb.png")
-        random = Random(1)
-        dizzy = Texture("frame5.png")
+        screenHeight = Gdx.graphics.height
+        screenWidth = Gdx.graphics.width
+        birds = arrayOf(Texture("frame1.png"), Texture("frame2.png"), Texture("frame5.png"))
+        birdCenterX = 1
+        birdY = 1
+        randomGenerator = Random()
+
+
+        birdCircle = Circle()
+        // shapeRenderer = ShapeRenderer();
+
         font = BitmapFont()
-        font.color = Color.WHITE
-        font.data.setScale(10f)
+        font!!.color = Color.GOLD
+        font!!.data.setScale(15f)
+        initialize()
+    }//create
 
-    }//Create
+    fun initialize() {
 
-    fun makeCoin() {
+        whichBird = 0
+        velocity = 0
+        gravity = 1
+        gameState = 0
+        birdCenterX = 1
+        birdY = 1
+        bombXs.clear()
+        bombYs.clear()
+        bombRectangles.clear()
+        numOfBombs = 0
 
-        val height: Float = random.nextFloat() * Gdx.graphics.height
-        coinXs[numOfCoins] = (Gdx.graphics.width).toFloat()
-        coinYs[numOfCoins] = height
-        numOfCoins += 1
-    }
+        birdCircle = Circle()
+        shapeRenderer = ShapeRenderer();
+        tubePassed = 0
+        score = 0
 
+    }//initialize()
+
+    fun drawBirds() {
+        batch.draw(birds[whichBird], birdCenterX.toFloat(), birdY.toFloat())
+        if(gameState == 1) whichBird = 1 - whichBird
+        else if(gameState == 2) whichBird = 2
+        else if(gameState == 0) whichBird = 0
+
+    } //drawBirds
     fun makeBomb() {
-        val height = random.nextFloat() * Gdx.graphics.height
-        bombYs[numOfBombs] = height
+        val height = 20
+        bombYs[numOfBombs] = height.toFloat()
         bombXs[numOfBombs] = (Gdx.graphics.width).toFloat()
         numOfBombs += 1
     }
 
     override fun render() {
-        super.render()
-
         batch.begin()
-        batch.draw(backGround, 0f, 0f, width, height)
-
-
-        if (gameState == 0) {
-            if (Gdx.input.justTouched()) {
-                gameState = 1
-            }
-        } else if (gameState == 1) { //game is alive
-
-            // BOMB
+        batch.draw(background, 0f, 0f, screenWidth.toFloat(), screenHeight.toFloat())
+        if (gameState == 1) {
             if (bombCount < 250) {
                 bombCount++
             } else {
                 bombCount = 0
                 makeBomb()
             }//if
-            //bombRectangles.clear()
             for (i in 0 until numOfBombs) {
                 batch.draw(bomb, bombXs[i]!!, bombYs[i]!!)
-                bombXs[i] = bombXs[i]!! - 8
+                bombXs[i] = bombXs[i]!! - 17
                 bombRectangles[i] =
                         Rectangle(
                                 bombXs[i]!!.toFloat(), bombYs[i]!!.toFloat(),
                                 bomb.width.toFloat(), bomb.height.toFloat()
                         )
             }//for
+            if (Gdx.input.justTouched()) {
+                if(birdY == 0)
+                {
+                    birdY = 10
+                    velocity = -30
+                }
 
-            //Coin
-            if (coinCount < 100) {
-                coinCount += 1
-            } else {
-                coinCount = 0
-                makeCoin()
-            }//if
-            // coinRectangles.clear();
-            for (i in 0 until numOfCoins) {
-                batch.draw(coin, coinXs[i]!!, coinYs[i]!!)
-                coinXs[i] = coinXs[i]!! - 4
-                coinRectangles[i] =
-                        Rectangle(
-                                coinXs[i]!!.toFloat(), coinYs[i]!!.toFloat(),
-                                coin.width.toFloat(), coin.height.toFloat()
-                        )
-            }//for
-            if (Gdx.input.justTouched()) { //mouse clicked
-                velocity -= 20
-            }//if
+            } //if (Gdx.input
 
-            if (pause < 8) {
-                pause += 1
-            } else {
-                pause = 0
-                manState = (manState + 1) % 4
-            }//else
-            velocity += gravity
-            manY -= velocity
-            if (manY < 160) {
-                manY = 160f
+            System.out.println(birdY)
+            if (birdY > 0) {
+                velocity = velocity + gravity
+                birdY = birdY - velocity
+            } //if (birdY
+            else {
+                birdY = 0
             }
-        } else if (gameState == 2) {
-            //Game Over
+        } else if (gameState == 0) {
             if (Gdx.input.justTouched()) {
                 gameState = 1
-                manY = height
-                score = 0
-                velocity = 0f
-                coinCount = 0
-                bombCount = 0
-                numOfBombs = 0
-                numOfCoins = 0
-            }//if (Gdx.input.justTouched())
-
-        } //else if (gameState == 2) {
-
-        if (gameState == 2) {
-            batch.draw(dizzy, w - manWidth / 2, manY / 2 - 100)
-        } else {
-            batch.draw(man[manState], w - manWidth / 2, manY / 2 - 100)
-        }
-        manRectangle = Rectangle(
-                w - manWidth / 2.toFloat(), manY / 2 - 100,
-                man[manState].width.toFloat(),
-                man[manState].height.toFloat()
-        )
-
-        for (i in 0 until numOfCoins) {
-            if (Intersector.overlaps(manRectangle, coinRectangles[i])) {
-                score++
-                //coinRectangles[i] =  0
-                coinXs[i] = -100f
-                coinYs[i] = -100f
-                break
-            }//if (Intersector.overlaps
-        }//for (i in 0 until numOfCoins) {
-
+            }
+        } else if (gameState == 2) {
+            batch.draw(gameover, (screenWidth / 2 - gameover.width / 2).toFloat(), (screenHeight / 2).toFloat()
+            )
+            if (Gdx.input.justTouched()) {
+                gameState = 1
+                initialize()
+            }
+        } //endif
+        drawBirds()
         for (i in 0 until numOfBombs) {
-            if (Intersector.overlaps(manRectangle, bombRectangles[i])) {
+            if (Intersector.overlaps(birdCircle, bombRectangles[i])) {
                 //Gdx.app.log("Bomb!", "Collision!")
                 bombXs[i] = -100f
                 bombYs[i] = -100f
                 gameState = 2
             }// if (Intersector.o
         }// for (i in 0 until numOfBombs)
-
-        font.draw(batch, score.toString(), 100f, 150f)
-
+        font!!.draw(batch, "" + score, 100f, screenHeight.toFloat())
         batch.end()
-    }//render
+        //shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        // shapeRenderer.setColor(Color.BLUE);
+        birdCircle.set(0F, birdY + (birds[0].height).toFloat(), (birds[0].width / 2).toFloat())
+        //shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
+
+        // shapeRenderer.end();
+    } //render
 
     override fun dispose() {
-        super.dispose()
         batch.dispose()
-    }//dispose
+    } //dispose()
 
-}//myGame
-// bombXs.clear();
-// bombYs.clear();
-// bombRectangles.clear();
+}//END

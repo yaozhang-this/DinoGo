@@ -121,8 +121,8 @@ class Dinogo : ApplicationAdapter() {
         shapeRenderer = ShapeRenderer();
         tubePassed = 0
         score = 0
-
-
+        bingoState = arrayOf(2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2)
+        bingoNumbers = (1..60).shuffled().take(25)
 
     }//initialize()
 

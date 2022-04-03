@@ -71,7 +71,7 @@ class Dinogo : ApplicationAdapter() {
             chooseNumber()
         }
         else
-            return bingoState[rando]
+            return rando
     }
     override fun create() {
         batch = SpriteBatch()

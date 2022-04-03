@@ -244,7 +244,16 @@ class Dinogo : ApplicationAdapter() {
         } //endif
         else if(gameState == 3)
         {
-            font!!.draw(batch,"GAME WON!\nYou Score is $score\n(lower is better)",200f,1100f)
+            var posX = arrayOf(150f,300f,500f,700f,900f,150f,300f,500f,700f,900f,150f,300f,500f,700f,900f,150f,300f,500f,700f,900f,150f,300f,500f,700f,900f)
+            var posY = arrayOf(1500f,1500f,1500f,1500f,1500f,1300f,1300f,1300f,1300f,1300f,1100f,1100f,1100f,1100f,1100f,900f,900f,900f,900f,900f,700f,700f,700f,700f,700f)
+            for(num in 0..24){
+                if (bingoState[num] == 0){
+                    font!!.draw(batch, "("+bingoNumbers[num]+")", posX[num], posY[num])
+                }
+                else
+                    font!!.draw(batch, ""+bingoNumbers[num], posX[num], posY[num])
+            }
+            font!!.draw(batch,"GAME WON!\nYou Score is $score\n(lower is better)",200f,500f)
             if (Gdx.input.justTouched()) {
                 gameState = 1
                 initialize()

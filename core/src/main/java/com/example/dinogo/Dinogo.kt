@@ -9,8 +9,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Intersector
-import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Rectangle
+import kotlin.random.Random
 import java.util.*
 
 /** [com.badlogic.gdx.ApplicationListener] implementation shared by all platforms. */
@@ -37,15 +37,33 @@ class Dinogo : ApplicationAdapter() {
     var bombCount = 0
     var numOfBombs = 0
 
-
-    lateinit  var randomGenerator: Random
     var bombRectangles = HashMap<Int, Rectangle>()
     lateinit var shapeRenderer: ShapeRenderer
     lateinit  var birdCircle: Circle
     var score = 0
+    var startTime = 0
     var tubePassed = 0
     var font: BitmapFont? = null
+    val from = 1
+    val to = 60
+    val random = Random
+    var bingoNumbers = IntArray(24){random.nextInt(to-from) + from}
+    var gameWon = false
+    var bingoState = arrayOf(2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2)
+    var winningPositions = arrayOf(arrayOf(0,1,2,3,4),arrayOf(5,6,7,8,9), arrayOf(10,11,12,13,14),
+        arrayOf(15,16,17,18,19), arrayOf(20,21,22,23,24), arrayOf(0,5,10,15,20), arrayOf(1,6,11,16,21),
+        arrayOf(2,7,12,17,22), arrayOf(3,8,13,18,23), arrayOf(4,9,14,19,24), arrayOf(0,6,12,18,24),
+        arrayOf(4,8,12,16,20))
 
+    fun isWin(){
+        for (win in winningPositions){
+            var sum = bingoState[win[0]] + bingoState[win[1]] + bingoState[win[2]] + bingoState[win[3]] + bingoState[win[4]]
+            if (sum == 0){
+                gameWon = true
+                return
+            }
+        }
+    }//isWin
     override fun create() {
         batch = SpriteBatch()
         background = Texture("bg.png")
@@ -56,7 +74,7 @@ class Dinogo : ApplicationAdapter() {
         birds = arrayOf(Texture("frame1.png"), Texture("frame2.png"), Texture("frame5.png"))
         birdCenterX = 1
         birdY = 1
-        randomGenerator = Random()
+
 
 
         birdCircle = Circle()
@@ -86,6 +104,8 @@ class Dinogo : ApplicationAdapter() {
         tubePassed = 0
         score = 0
 
+
+
     }//initialize()
 
     fun drawBirds() {
@@ -106,6 +126,7 @@ class Dinogo : ApplicationAdapter() {
         batch.begin()
         batch.draw(background, 0f, 0f, screenWidth.toFloat(), screenHeight.toFloat())
         if (gameState == 1) {
+            score = (System.currentTimeMillis()/ 1000).toInt() - startTime
             if (bombCount < 250) {
                 bombCount++
             } else {
@@ -140,6 +161,7 @@ class Dinogo : ApplicationAdapter() {
             }
         } else if (gameState == 0) {
             if (Gdx.input.justTouched()) {
+                startTime = (System.currentTimeMillis()/ 1000).toInt()
                 gameState = 1
             }
         } else if (gameState == 2) {

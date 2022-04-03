@@ -65,7 +65,7 @@ class Dinogo : ApplicationAdapter() {
         }
     }//isWin
 
-    fun chooseNumber(): Int {
+    fun chooseNumber() {
         var rando = random.nextInt(0,24)
         if (bingoState[rando] == 2){
             chooseNumber()

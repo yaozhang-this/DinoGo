@@ -52,7 +52,7 @@ class Dinogo : ApplicationAdapter() {
     val random = Random
     var bingoCount = 0
     var numOfBingo = 0
-    var bingoNumbers = IntArray(25){random.nextInt(to-from) + from}
+    var bingoNumbers = (1..60).shuffled().take(25)
     var gameWon = false
     var bingoState = arrayOf(2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2)
     var winningPositions = arrayOf(arrayOf(0,1,2,3,4),arrayOf(5,6,7,8,9), arrayOf(10,11,12,13,14),

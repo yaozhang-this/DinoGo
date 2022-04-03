@@ -52,7 +52,7 @@ class Dinogo : ApplicationAdapter() {
     val random = Random
     var bingoCount = 0
     var numOfBingo = 0
-    var bingoNumbers = IntArray(25){random.nextInt(to-from) + from}
+    var bingoNumbers = (1..60).shuffled().take(25)
     var gameWon = false
     var bingoState = arrayOf(2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2)
     var winningPositions = arrayOf(arrayOf(0,1,2,3,4),arrayOf(5,6,7,8,9), arrayOf(10,11,12,13,14),
@@ -64,7 +64,7 @@ class Dinogo : ApplicationAdapter() {
         for (win in winningPositions){
             var sum = bingoState[win[0]] + bingoState[win[1]] + bingoState[win[2]] + bingoState[win[3]] + bingoState[win[4]]
             if (sum == 0){
-                gameWon = true
+                gameState = 3
                 return
             }
         }
@@ -143,7 +143,7 @@ class Dinogo : ApplicationAdapter() {
     fun makeBingo()
     {
         bingoX[numOfBingo] = (Gdx.graphics.width).toFloat()
-        bingoStore[numOfBingo] = chooseNumber()
+        bingoStore[numOfBingo] = bingoNumbers[chooseNumber()]
         numOfBingo += 1
     }
 
@@ -242,6 +242,14 @@ class Dinogo : ApplicationAdapter() {
                 initialize()
             }
         } //endif
+        else if(gameState == 3)
+        {
+            font!!.draw(batch,"GAME WON!\nYou Score is $score\n(lower is better)",200f,1100f)
+            if (Gdx.input.justTouched()) {
+                gameState = 1
+                initialize()
+            }
+        }
         drawBirds()
         for (i in 0 until numOfBombs) {
             if (Intersector.overlaps(birdCircle, bombRectangles[i])) {
@@ -255,7 +263,16 @@ class Dinogo : ApplicationAdapter() {
             if (Intersector.overlaps(birdCircle, bingoRectangles[i])) {
                 //Gdx.app.log("Bomb!", "Collision!")
                 bingoX[i] = -1000f
-                score = 100
+                for(j in bingoNumbers.indices){
+                    if (bingoStore[i] == bingoNumbers[j])
+                    {
+
+                        bingoState[j] = 0
+                        isWin()
+                        break
+                    }
+                }
+
             }// if (Intersector.o
         }// for (i in 0 until numOfBombs)
         font!!.draw(batch, "" + score, 100f, screenHeight.toFloat())

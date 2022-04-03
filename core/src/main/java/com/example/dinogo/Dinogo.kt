@@ -19,27 +19,27 @@ class Dinogo : ApplicationAdapter() {
 
     lateinit var batch: SpriteBatch
     lateinit var background: Texture
-    lateinit var birds: Array<Texture>
+    lateinit var dinos: Array<Texture>
     lateinit  var gameover: Texture
 
 
     var screenWidth = 0
     var screenHeight = 0
-    var birdCenterX = 0
-    var birdY = 0
-    var whichBird = 0
+    var dinoCenterX = 0
+    var dinoY = 0
+    var whichDino = 0
     var gameState = 0
     var velocity = 0
     var gravity = 0
-    var bombXs = HashMap<Int, Float>()
-    var bombYs = HashMap<Int, Float>()
-    lateinit var bomb: Texture
-    var bombCount = 0
-    var numOfBombs = 0
+    var birdXs = HashMap<Int, Float>()
+    var birdYs = HashMap<Int, Float>()
+    lateinit var bird: Texture
+    var birdCount = 0
+    var numOfBirds = 0
     var bingoRectangles = HashMap<Int, Rectangle>()
-    var bombRectangles = HashMap<Int, Rectangle>()
+    var birdRectangles = HashMap<Int, Rectangle>()
     lateinit var shapeRenderer: ShapeRenderer
-    lateinit  var birdCircle: Circle
+    lateinit  var dinoCircle: Circle
     var score = 0
     var startTime = 0
     var tubePassed = 0
@@ -73,16 +73,16 @@ class Dinogo : ApplicationAdapter() {
         batch = SpriteBatch()
         background = Texture("bg.png")
         gameover = Texture("gameover.jpg")
-        bomb = Texture("bomb.png")
+        bird = Texture("bird.png")
         screenHeight = Gdx.graphics.height
         screenWidth = Gdx.graphics.width
-        birds = arrayOf(Texture("frame1.png"), Texture("frame2.png"), Texture("frame5.png"))
-        birdCenterX = 1
-        birdY = 1
+        dinos = arrayOf(Texture("frame1.png"), Texture("frame2.png"), Texture("frame5.png"))
+        dinoCenterX = 1
+        dinoY = 1
 
 
 
-        birdCircle = Circle()
+        dinoCircle = Circle()
         // shapeRenderer = ShapeRenderer();
 
         font = BitmapFont()
@@ -102,22 +102,22 @@ class Dinogo : ApplicationAdapter() {
     }
     fun initialize() {
 
-        whichBird = 0
+        whichDino = 0
         velocity = 0
         gravity = 1
         gameState = 0
-        birdCenterX = 1
-        birdY = 1
-        bombXs.clear()
-        bombYs.clear()
+        dinoCenterX = 1
+        dinoY = 1
+        birdXs.clear()
+        birdYs.clear()
         bingoX.clear()
         bingoStore.clear()
         bingoRectangles.clear()
-        bombRectangles.clear()
-        numOfBombs = 0
+        birdRectangles.clear()
+        numOfBirds = 0
         numOfBingo = 0
         bingoCount = 0
-        birdCircle = Circle()
+        dinoCircle = Circle()
         shapeRenderer = ShapeRenderer();
         tubePassed = 0
         score = 0
@@ -126,19 +126,19 @@ class Dinogo : ApplicationAdapter() {
 
     }//initialize()
 
-    fun drawBirds() {
-        batch.draw(birds[whichBird], birdCenterX.toFloat(), birdY.toFloat())
-        if(gameState == 1) whichBird = 1 - whichBird
-        else if(gameState == 2) whichBird = 2
-        else if(gameState == 0) whichBird = 0
+    fun drawdinos() {
+        batch.draw(dinos[whichDino], dinoCenterX.toFloat(), dinoY.toFloat())
+        if(gameState == 1) whichDino = 1 - whichDino
+        else if(gameState == 2) whichDino = 2
+        else if(gameState == 0) whichDino = 0
 
-    } //drawBirds
-    fun makeBomb() {
+    } //drawdinos
+    fun makeBird() {
         val height = 20
-        bombYs[numOfBombs] = height.toFloat()
-        bombXs[numOfBombs] = (Gdx.graphics.width).toFloat()
+        birdYs[numOfBirds] = height.toFloat()
+        birdXs[numOfBirds] = (Gdx.graphics.width).toFloat()
 
-        numOfBombs += 1
+        numOfBirds += 1
     }
     fun makeBingo()
     {
@@ -152,11 +152,11 @@ class Dinogo : ApplicationAdapter() {
         batch.draw(background, 0f, 0f, screenWidth.toFloat(), screenHeight.toFloat())
         if (gameState == 1) {
             score = (System.currentTimeMillis()/ 1000).toInt() - startTime
-            if (bombCount < 250) {
-                bombCount++
+            if (birdCount < 250) {
+                birdCount++
             } else {
-                bombCount = 0
-                makeBomb()
+                birdCount = 0
+                makeBird()
             }//if
             if (bingoCount < 120)
             {
@@ -172,36 +172,36 @@ class Dinogo : ApplicationAdapter() {
                 bingoRectangles[i] =
                     Rectangle(
                         bingoX[i]!!.toFloat(), 300F,
-                        bomb.width.toFloat(), bomb.height.toFloat()
+                        bird.width.toFloat(), bird.height.toFloat()
                     )
             }
 
 
-            for (i in 0 until numOfBombs) {
-                batch.draw(bomb, bombXs[i]!!, bombYs[i]!!)
-                bombXs[i] = bombXs[i]!! - 17
-                bombRectangles[i] =
+            for (i in 0 until numOfBirds) {
+                batch.draw(bird, birdXs[i]!!, birdYs[i]!!)
+                birdXs[i] = birdXs[i]!! - 17
+                birdRectangles[i] =
                     Rectangle(
-                        bombXs[i]!!.toFloat(), bombYs[i]!!.toFloat(),
-                        bomb.width.toFloat(), bomb.height.toFloat()
+                        birdXs[i]!!.toFloat(), birdYs[i]!!.toFloat(),
+                        bird.width.toFloat(), bird.height.toFloat()
                     )
             }//for
             if (Gdx.input.justTouched()) {
-                if(birdY == 0)
+                if(dinoY == 0)
                 {
-                    birdY = 10
+                    dinoY = 10
                     velocity = -30
                 }
 
             } //if (Gdx.input
 
-            System.out.println(birdY)
-            if (birdY > 0) {
+            System.out.println(dinoY)
+            if (dinoY > 0) {
                 velocity = velocity + gravity
-                birdY = birdY - velocity
-            } //if (birdY
+                dinoY = dinoY - velocity
+            } //if (dinoY
             else {
-                birdY = 0
+                dinoY = 0
             }
         } else if (gameState == 0) {
             if (Gdx.input.justTouched()) {
@@ -250,18 +250,18 @@ class Dinogo : ApplicationAdapter() {
                 initialize()
             }
         }
-        drawBirds()
-        for (i in 0 until numOfBombs) {
-            if (Intersector.overlaps(birdCircle, bombRectangles[i])) {
-                //Gdx.app.log("Bomb!", "Collision!")
-                bombXs[i] = -100f
-                bombYs[i] = -100f
+        drawdinos()
+        for (i in 0 until numOfBirds) {
+            if (Intersector.overlaps(dinoCircle, birdRectangles[i])) {
+                //Gdx.app.log("bird!", "Collision!")
+                birdXs[i] = -100f
+                birdYs[i] = -100f
                 gameState = 2
             }// if (Intersector.o
-        }// for (i in 0 until numOfBombs)
+        }// for (i in 0 until numOfBirds)
         for (i in 0 until numOfBingo) {
-            if (Intersector.overlaps(birdCircle, bingoRectangles[i])) {
-                //Gdx.app.log("Bomb!", "Collision!")
+            if (Intersector.overlaps(dinoCircle, bingoRectangles[i])) {
+                //Gdx.app.log("bird!", "Collision!")
                 bingoX[i] = -1000f
                 for(j in bingoNumbers.indices){
                     if (bingoStore[i] == bingoNumbers[j])
@@ -274,13 +274,13 @@ class Dinogo : ApplicationAdapter() {
                 }
 
             }// if (Intersector.o
-        }// for (i in 0 until numOfBombs)
+        }// for (i in 0 until numOfBirds)
         font!!.draw(batch, "" + score, 100f, screenHeight.toFloat())
         batch.end()
         //shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         // shapeRenderer.setColor(Color.BLUE);
-        birdCircle.set(0F, birdY + (birds[0].height).toFloat(), (birds[0].width / 2).toFloat())
-        //shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
+        dinoCircle.set(0F, dinoY + (dinos[0].height).toFloat(), (dinos[0].width / 2).toFloat())
+        //shapeRenderer.circle(dinoCircle.x, dinoCircle.y, dinoCircle.radius);
 
         // shapeRenderer.end();
     } //render

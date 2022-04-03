@@ -52,7 +52,7 @@ class Dinogo : ApplicationAdapter() {
     val random = Random
     var bingoCount = 0
     var numOfBingo = 0
-    var bingoNumbers = IntArray(24){random.nextInt(to-from) + from}
+    var bingoNumbers = IntArray(25){random.nextInt(to-from) + from}
     var gameWon = false
     var bingoState = arrayOf(2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2)
     var winningPositions = arrayOf(arrayOf(0,1,2,3,4),arrayOf(5,6,7,8,9), arrayOf(10,11,12,13,14),
@@ -181,10 +181,10 @@ class Dinogo : ApplicationAdapter() {
                 batch.draw(bomb, bombXs[i]!!, bombYs[i]!!)
                 bombXs[i] = bombXs[i]!! - 17
                 bombRectangles[i] =
-                        Rectangle(
-                                bombXs[i]!!.toFloat(), bombYs[i]!!.toFloat(),
-                                bomb.width.toFloat(), bomb.height.toFloat()
-                        )
+                    Rectangle(
+                        bombXs[i]!!.toFloat(), bombYs[i]!!.toFloat(),
+                        bomb.width.toFloat(), bomb.height.toFloat()
+                    )
             }//for
             if (Gdx.input.justTouched()) {
                 if(birdY == 0)
@@ -208,6 +208,32 @@ class Dinogo : ApplicationAdapter() {
                 startTime = (System.currentTimeMillis()/ 1000).toInt()
                 gameState = 1
             }
+            font!!.data.setScale(7f)
+            font!!.draw(batch,""+bingoNumbers[0],150f,1500f)
+            font!!.draw(batch,""+bingoNumbers[1],300f,1500f)
+            font!!.draw(batch,""+bingoNumbers[2],500f,1500f)
+            font!!.draw(batch,""+bingoNumbers[3],700f,1500f)
+            font!!.draw(batch,""+bingoNumbers[4],900f,1500f)
+            font!!.draw(batch,""+bingoNumbers[5],150f,1300f)
+            font!!.draw(batch,""+bingoNumbers[6],300f,1300f)
+            font!!.draw(batch,""+bingoNumbers[7],500f,1300f)
+            font!!.draw(batch,""+bingoNumbers[8],700f,1300f)
+            font!!.draw(batch,""+bingoNumbers[9],900f,1300f)
+            font!!.draw(batch,""+bingoNumbers[10],150f,1100f)
+            font!!.draw(batch,""+bingoNumbers[11],300f,1100f)
+            font!!.draw(batch,"!",500f,1100f)
+            font!!.draw(batch,""+bingoNumbers[13],700f,1100f)
+            font!!.draw(batch,""+bingoNumbers[14],900f,1100f)
+            font!!.draw(batch,""+bingoNumbers[15],150f,900f)
+            font!!.draw(batch,""+bingoNumbers[16],300f,900f)
+            font!!.draw(batch,""+bingoNumbers[17],500f,900f)
+            font!!.draw(batch,""+bingoNumbers[18],700f,900f)
+            font!!.draw(batch,""+bingoNumbers[19],900f,900f)
+            font!!.draw(batch,""+bingoNumbers[20],150f,700f)
+            font!!.draw(batch,""+bingoNumbers[21],300f,700f)
+            font!!.draw(batch,""+bingoNumbers[22],500f,700f)
+            font!!.draw(batch,""+bingoNumbers[23],700f,700f)
+            font!!.draw(batch,""+bingoNumbers[24],900f,700f)
         } else if (gameState == 2) {
             batch.draw(gameover, (screenWidth / 2 - gameover.width / 2).toFloat(), (screenHeight / 2).toFloat()
             )

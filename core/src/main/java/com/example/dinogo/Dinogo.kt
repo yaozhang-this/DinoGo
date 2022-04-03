@@ -64,6 +64,15 @@ class Dinogo : ApplicationAdapter() {
             }
         }
     }//isWin
+
+    fun chooseNumber(): Int {
+        var rando = random.nextInt(0,24)
+        if (bingoState[rando] == 2){
+            chooseNumber()
+        }
+        else
+            return bingoState[rando]
+    }
     override fun create() {
         batch = SpriteBatch()
         background = Texture("bg.png")

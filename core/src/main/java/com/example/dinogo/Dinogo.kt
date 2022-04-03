@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Rectangle
 import kotlin.random.Random
 import java.util.*
+import kotlin.collections.HashMap
 
 /** [com.badlogic.gdx.ApplicationListener] implementation shared by all platforms. */
 class Dinogo : ApplicationAdapter() {
@@ -30,13 +31,12 @@ class Dinogo : ApplicationAdapter() {
     var gameState = 0
     var velocity = 0
     var gravity = 0
-
     var bombXs = HashMap<Int, Float>()
     var bombYs = HashMap<Int, Float>()
     lateinit var bomb: Texture
     var bombCount = 0
     var numOfBombs = 0
-
+    var bingoRectangles = HashMap<Int, Rectangle>()
     var bombRectangles = HashMap<Int, Rectangle>()
     lateinit var shapeRenderer: ShapeRenderer
     lateinit  var birdCircle: Circle
@@ -44,9 +44,14 @@ class Dinogo : ApplicationAdapter() {
     var startTime = 0
     var tubePassed = 0
     var font: BitmapFont? = null
+    var bingoObj : BitmapFont? = null
     val from = 1
     val to = 60
+    var bingoX = HashMap<Int, Float>()
+    var bingoStore = HashMap<Int, Int>()
     val random = Random
+    var bingoCount = 0
+    var numOfBingo = 0
     var bingoNumbers = IntArray(24){random.nextInt(to-from) + from}
     var gameWon = false
     var bingoState = arrayOf(2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,2,2,2,2,2,2,2)
@@ -81,11 +86,20 @@ class Dinogo : ApplicationAdapter() {
         // shapeRenderer = ShapeRenderer();
 
         font = BitmapFont()
+        bingoObj = BitmapFont()
+        bingoObj!!.color = Color.WHITE
+        bingoObj!!.data.setScale(15f)
         font!!.color = Color.GOLD
         font!!.data.setScale(15f)
         initialize()
     }//create
-
+    fun chooseNumber(): Int {
+        var rando = random.nextInt(0,24)
+        while (bingoState[rando] != 2){
+            rando = random.nextInt(0,24)
+        }
+        return rando
+    }
     fun initialize() {
 
         whichBird = 0
@@ -96,9 +110,13 @@ class Dinogo : ApplicationAdapter() {
         birdY = 1
         bombXs.clear()
         bombYs.clear()
+        bingoX.clear()
+        bingoStore.clear()
+        bingoRectangles.clear()
         bombRectangles.clear()
         numOfBombs = 0
-
+        numOfBingo = 0
+        bingoCount = 0
         birdCircle = Circle()
         shapeRenderer = ShapeRenderer();
         tubePassed = 0
@@ -119,7 +137,14 @@ class Dinogo : ApplicationAdapter() {
         val height = 20
         bombYs[numOfBombs] = height.toFloat()
         bombXs[numOfBombs] = (Gdx.graphics.width).toFloat()
+
         numOfBombs += 1
+    }
+    fun makeBingo()
+    {
+        bingoX[numOfBingo] = (Gdx.graphics.width).toFloat()
+        bingoStore[numOfBingo] = chooseNumber()
+        numOfBingo += 1
     }
 
     override fun render() {
@@ -133,6 +158,25 @@ class Dinogo : ApplicationAdapter() {
                 bombCount = 0
                 makeBomb()
             }//if
+            if (bingoCount < 120)
+            {
+                bingoCount++
+            }
+            else{
+                bingoCount = 0
+                makeBingo()
+            }
+            for (i in 0 until numOfBingo) {
+                bingoObj!!.draw(batch, "" + bingoStore[i], bingoX[i]!!, 300F)
+                bingoX[i] = bingoX[i]!! - 20
+                bingoRectangles[i] =
+                    Rectangle(
+                        bingoX[i]!!.toFloat(), 300F,
+                        bomb.width.toFloat(), bomb.height.toFloat()
+                    )
+            }
+
+
             for (i in 0 until numOfBombs) {
                 batch.draw(bomb, bombXs[i]!!, bombYs[i]!!)
                 bombXs[i] = bombXs[i]!! - 17
@@ -179,6 +223,13 @@ class Dinogo : ApplicationAdapter() {
                 bombXs[i] = -100f
                 bombYs[i] = -100f
                 gameState = 2
+            }// if (Intersector.o
+        }// for (i in 0 until numOfBombs)
+        for (i in 0 until numOfBingo) {
+            if (Intersector.overlaps(birdCircle, bingoRectangles[i])) {
+                //Gdx.app.log("Bomb!", "Collision!")
+                bingoX[i] = -1000f
+                score = 100
             }// if (Intersector.o
         }// for (i in 0 until numOfBombs)
         font!!.draw(batch, "" + score, 100f, screenHeight.toFloat())
